@@ -1,5 +1,5 @@
-This is a space themed game. The user is stuck in the middle of an asteroid belt. The user must collect all the tools required to fix their ship while avoiding asteroids that cause them damage. The user wins if they collect all required tools. The user looses if their health goes down to 0.
-
+Space Scroller Game I made for my COSC 102 Java Class in Spring'20. 
+To run the game, clone the repo, compile all .java files and run the GameLauncher class.
 
 The user iteracts with multiple objects in the game:
 1)Asteroids -> If the user hits an asteroid their health goes down.
