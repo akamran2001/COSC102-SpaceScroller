@@ -1,0 +1,10 @@
+1)My design process is to create the game step-by-step by implementing it part by part.
+I complete a function, test it, debug it if it isn't working and then move on to the next function.
+Since this is an object oriented program I implement the program by using classes to break the prgram down to various componenets. Each class is the used to implment a different component within the BaseGame class.
+
+2)The most challenging part of the BaseGame was implementing the scrollLeft() function.
+I wasn't sure how to move the columns to the left and I tried multiple methods that didn't work. After a lot of tinkering I was finally able to figure out how to do it using a double for loop. My iterating through the cells and moving the image of the right cell to the left cell I was able to get the objects to move left.
+
+3)My plan for the creative game is a space themed game. The user will be a spaceship. 
+The goal is to collect jet fuel, which will boost the users score, and avoid asteroids, which will cause damage to the user. The game end when the user has hits 5 asteroids. The objective is to score
+as high a score as the user can before loosing. There will also be objects in the game that boosts the takes damage away from the user and restores heir health.
