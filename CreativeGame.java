@@ -1,9 +1,6 @@
 import java.awt.event.KeyEvent;
 import java.util.Random;
 import java.awt.Color;
-/**
- * @author Ahmed Kamran
- */
 public class CreativeGame extends AbstractGame {
     private double health = 100;
     private int score = 0;
