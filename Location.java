@@ -1,5 +1,3 @@
-import java.awt.Color;
-
 public class Location {
     
     private int row;
@@ -18,11 +16,20 @@ public class Location {
     public int getCol() {
         return col;
     }
-    
-    public boolean equals(Location otherLoc) {
-        return row == otherLoc.getRow() && col == otherLoc.getCol();
+    @Override
+    public int hashCode(){
+        return 0;
     }
-    
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof Location){
+            Location otherLoc = (Location)obj;
+            return row == otherLoc.getRow() && col == otherLoc.getCol();
+        }
+        return false;
+    }
+    @Override
     public String toString() {
         return "(" + row + ", " + col + ")";
     }

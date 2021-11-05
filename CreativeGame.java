@@ -1,7 +1,6 @@
 import java.awt.event.KeyEvent;
 import java.util.Random;
 import java.awt.Color;
-import java.util.Arrays;
 /**
  * @author Ahmed Kamran
  */
@@ -43,9 +42,6 @@ public class CreativeGame extends AbstractGame {
     protected Location player;
     protected int screen = INTRO;
     protected GameGrid grid;
-    //Storing the number of playable rows and columns
-    protected static int num_rows = 0;
-    protected static int num_cols = 0;
     //Integers representing the tools in the game toolbox
     protected static int HAMMER = 0;
     protected static int SCREWDRIVER = 1;
@@ -61,17 +57,24 @@ public class CreativeGame extends AbstractGame {
     //Boolean indicating if the game has been won
     private boolean win = false;
     //The toolbox object from the Toolbox class (below)
-    protected ToolBox box;
+    ToolBox box;
 
+    //Storing the number of playable rows and columns
+    int num_rows = 0;
+    int num_cols = 0;
+
+    Random rand = new Random();
+
+    boolean Debug;
     public CreativeGame() {
         this(DEFAULT_GRID_H, DEFAULT_GRID_W);
     }
     
     public CreativeGame(int grid_h, int grid_w){
-         this(grid_h, grid_w, DEFAULT_TIMER_DELAY);
+         this(grid_h, grid_w, DEFAULT_TIMER_DELAY,false);
     }
     
-    public CreativeGame(int hdim, int wdim, int init_delay_ms) {
+    public CreativeGame(int hdim, int wdim, int init_delay_ms, boolean debug) {
         super(init_delay_ms);
         //set up our "board" (i.e., game grid) 
         if (hdim<2 || wdim<2){//If either the provided width and height are less than 2 use default values
@@ -79,15 +82,15 @@ public class CreativeGame extends AbstractGame {
             wdim = DEFAULT_GRID_W;
         }
         grid = new GameGrid(hdim, wdim);   
-        
-        num_rows = grid.getNumRows()-1;//The bottom row is not playable. It's used to display the tools the user must collect
-        num_cols = grid.getNumCols();
+        this.Debug = debug;
+        this.num_rows = grid.getNumRows()-1;
+        this.num_cols = grid.getNumCols();
     }
 
     /******************** Methods **********************/
     protected void initGame(){
          // store and initialize user position
-         box = new ToolBox();//Initialize toolbox
+         box = new ToolBox(this.num_cols);//Initialize toolbox
          box.fillbox();//Fill it with random tools
          displayBox();//Display the contents of the box
          grid.setGameBackground(BG_IMG);
@@ -151,9 +154,8 @@ public class CreativeGame extends AbstractGame {
     }
     //Randomly add objects to te right most column of the game
     private void populateRightEdge() {
-        int height = num_rows;
-        int width = num_cols;
-        Random rand = new Random();
+        int height = this.num_rows;
+        int width = this.num_cols;
         for (int i=0; i<height; i++){
             Location spot  = new Location(i,width-1);
             int rand_n = rand.nextInt(3);
@@ -191,12 +193,12 @@ public class CreativeGame extends AbstractGame {
     }
     //Move the objects from right to left
     private void scrollLeft(){
-        for (int col=0; col<num_cols-1;col++){
-            for (int row=0; row<num_rows;row++){
+        for (int col=0; col<this.num_cols-1;col++){
+            for (int row=0; row<this.num_rows;row++){
                 Location left = new Location(row,col);
                 Location right = new Location(row, col+1);
                 String right_img = grid.getCellImage(right);
-                if (right_img!=PLAYER_IMG){
+                if (!PLAYER_IMG.equals(right_img)){
                     handleCollision();
                     grid.setCellImage(left,right_img);
                     grid.setCellImage(right,null);
@@ -216,54 +218,65 @@ public class CreativeGame extends AbstractGame {
     private void handleCollision() {
         String cell_img = grid.getCellImage(player);
         boolean scored = false;
-        if (cell_img == ASTEROID_IMG){
-            health-=5;//Hitting asteorids reduce health
+        try{
+            if (cell_img.equals(ASTEROID_IMG)){
+                health-=5;//Hitting asteorids reduce health
+            }
+            else if (cell_img.equals(FUEL_IMG)){
+                health += 5;//Hitting fuel tanks boost health
+            }
+            else if (cell_img.equals(PORTAL_IMG)){
+                teleport();//Teleport when the user strikes a portal
+            }
+            else{
+                //When the user hits a tool, try collecting it
+                if (cell_img.equals(HAMMER_IMG)){
+                    scored = box.collectTool(HAMMER);
+                }
+                else if (cell_img.equals(SCREWDRIVER_IMG)){
+                    scored = box.collectTool(SCREWDRIVER);
+                }
+                else if (cell_img.equals(DRILL_IMG)){
+                    scored = box.collectTool(DRILL);
+                }
+                else if (cell_img.equals(WRENCH_IMG)){
+                    scored = box.collectTool(WRENCH);
+                }
+                else if (cell_img.equals(PLIER_IMG)){
+                    scored = box.collectTool(PLIER);
+                }
+                if (scored){
+                    //If the tool was collected increase the score and display the updated contents of the toolbox
+                    score += 100;
+                    displayBox();
+                }
+                if(this.Debug){
+                    System.out.println(box);  
+                }
+                         
+            }
         }
-        else if (cell_img == FUEL_IMG){
-            health += 5;//Hitting fuel tanks boost health
+        catch(Exception e){
+            if(this.Debug){
+                System.out.println(e.toString());
+            }
         }
-        else if (cell_img == PORTAL_IMG){
-            teleport();//Teleport when the user strikes a portal
+        if(this.Debug){
+            System.out.println("Health: " + health + "------Score: " + score);
         }
-        else{
-            //When the user hits a tool, try collecting it
-            if (cell_img == HAMMER_IMG){
-                scored = box.collectTool(HAMMER);
-            }
-            else if (cell_img == SCREWDRIVER_IMG){
-                scored = box.collectTool(SCREWDRIVER);
-            }
-            else if (cell_img == DRILL_IMG){
-                scored = box.collectTool(DRILL);
-            }
-            else if (cell_img == WRENCH_IMG){
-                scored = box.collectTool(WRENCH);
-            }
-            else if (cell_img == PLIER_IMG){
-                scored = box.collectTool(PLIER);
-            }
-            if (scored){
-                //If the tool was collected increase the score and display the updated contents of the toolbox
-                score += 100;
-                displayBox();
-            }
-            System.out.println(box);            
-        }
-        System.out.println("Health: " + health + "------Score: " + score);
     }
     
     //Teleports player to a new random location
     private void teleport(){
-        Random rand = new Random();
         int r = player.getRow();
         int c = player.getCol();
-        int new_r = rand.nextInt(num_rows);
-        int new_c = rand.nextInt(num_cols-1);
+        int new_r = rand.nextInt(this.num_rows);
+        int new_c = rand.nextInt(this.num_cols-1);
         Location loc = new Location(new_r,new_c);
         String new_img = grid.getCellImage(loc);
         while (new_img != null){
-            new_r = rand.nextInt(num_rows);
-            new_c = rand.nextInt(num_cols-1);
+            new_r = rand.nextInt(this.num_rows);
+            new_c = rand.nextInt(this.num_cols-1);
             loc = new Location(new_r,new_c);
             new_img = grid.getCellImage(loc);
         }
@@ -285,74 +298,54 @@ public class CreativeGame extends AbstractGame {
         if (loc != null){
             System.out.println("You clicked on a square " + loc);
             
-        } 
-            
-        
+        }  
     }
-    
+    private void move(int new_r, int new_c, String img, boolean limit){
+        int r = player.getRow();
+        int c = player.getCol();
+        if (limit){
+            grid.setCellImage(new Location(r,c),null);
+            player = new Location(new_r,new_c);
+        }
+        handleCollision();
+        PLAYER_IMG = img;
+        grid.setCellImage(player,PLAYER_IMG);
+    }
     // handles actions upon key press in game
     protected void handleKeyPress() {
-        
         int key = grid.checkLastKeyPressed();
-        
         //use Java constant names for key presses
         //http://docs.oracle.com/javase/7/docs/api/constant-values.html#java.awt.event.KeyEvent.VK_DOWN
-        
         // Q for quit
-        if (key == KeyEvent.VK_Q)
+        if (key == KeyEvent.VK_Q){
             System.exit(0);
-        
+        }
         else if (key == KeyEvent.VK_S){ //Take a screenshot
             grid.save("screenshot.png");
             System.out.println("screen saved");
         }
-        
-        else if (key == KeyEvent.VK_SPACE)
-           screen += 1;
-        
+        else if (key == KeyEvent.VK_SPACE){
+            screen += 1;
+        }
         else if (key == KeyEvent.VK_DOWN){//Move user down
             int r = player.getRow();
             int c = player.getCol();
-            if ((r+1)<num_rows){
-                grid.setCellImage(new Location(r,c),null);
-                player = new Location(r+1,c);
-            }
-            handleCollision();
-            PLAYER_IMG = PLAYER_IMG_DOWN;
-            grid.setCellImage(player,PLAYER_IMG);
+            move(r+1, c, PLAYER_IMG_DOWN, (r+1)<num_rows);
         }
         else if (key == KeyEvent.VK_UP){//Move user up
             int r = player.getRow();
             int c = player.getCol();
-            if ((r-1)>=0){
-                grid.setCellImage(new Location(r,c),null);
-                player = new Location(r-1,c);
-            }
-            handleCollision();
-            PLAYER_IMG = PLAYER_IMG_UP;
-            grid.setCellImage(player,PLAYER_IMG);
+            move(r-1, c, PLAYER_IMG_UP, (r-1)>=0);
         }
         else if (key == KeyEvent.VK_RIGHT){//Move user right
             int r = player.getRow();
             int c = player.getCol();
-            if ((c+1)<num_cols-1){
-                grid.setCellImage(new Location(r,c),null);
-                player = new Location(r,c+1);
-            }
-            handleCollision();
-            PLAYER_IMG = PLAYER_IMG_RIGHT;
-            grid.setCellImage(player,PLAYER_IMG);
+            move(r, c+1, PLAYER_IMG_RIGHT, (c+1)<this.num_cols-1);
         }
         else if (key == KeyEvent.VK_LEFT){//Move user left
             int r = player.getRow();
             int c = player.getCol();
-            if ((c-1)>=0){
-                grid.setCellImage(new Location(r,c),null);
-                player = new Location(r,c-1);
-            }
-            handleCollision();
-            PLAYER_IMG = PLAYER_IMG_LEFT;
-            grid.setCellImage(player,PLAYER_IMG);
+            move(r, c-1, PLAYER_IMG_LEFT, (c-1)>=0);
         }
         else if (key == KeyEvent.VK_D){//Display and hide the grid lines
             Color red = Color.RED;
@@ -380,22 +373,11 @@ public class CreativeGame extends AbstractGame {
                 factor -= 1;
             }
         }
-        // else if (key == KeyEvent.VK_E){
-        //     init_bullet(player);
-        // }
-        /* To help you with step 9: 
-         use the 'T' key to help you with implementing speed up/slow down/pause
-         this prints out a debugging message */
         else if (key == KeyEvent.VK_T){
             boolean interval =  (turnsElapsed % factor == 0);
             System.out.println("timerDelay " + timerDelay + " msElapsed reset " + 
                                msElapsed + " interval " + interval);
         } 
-    }
-    
-    // return the "score" of the game 
-    private int getScore() {
-        return score; 
     }
     
     // update the title bar of the game window 
@@ -433,8 +415,8 @@ class ToolBox{
     Random rand = new Random();
     //An integer array, the length of the number of columns in the game, represents the toolbox
     private int[] box;
-    public ToolBox(){
-        this.box = new int[CreativeGame.num_cols];
+    public ToolBox(int cols){
+        this.box = new int[cols];
     }
     public int getLen(){
         return this.box.length;//Return the box length

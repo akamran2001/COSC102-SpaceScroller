@@ -1,5 +1,4 @@
 import java.util.Random;
-
 public abstract class AbstractGame {
    
    //USE ME, i.e. this instance (Don't instantiate a new Random object every frame) 
@@ -19,7 +18,7 @@ public abstract class AbstractGame {
    //---------------- Constructor -----------------//
    
    
-   public AbstractGame(int timerDelay) {
+   protected AbstractGame(int timerDelay) {
       
       this.timerDelay = timerDelay;
       
@@ -53,7 +52,11 @@ public abstract class AbstractGame {
    protected void sleep(int milliseconds) {
       try {
          Thread.sleep(milliseconds);
-    } catch(Exception e) { }
+    } catch(InterruptedException e){
+      System.out.println("Interrupted " + e.toString());
+      // Restore interrupted state...
+      Thread.currentThread().interrupt();  
+    }
    }
    
    //---------------- Abstract methods -----------------//
