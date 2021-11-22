@@ -7,9 +7,9 @@
 - Portal -> If the user hits a portal they're teleported to a different random location on the map.
 - Hammer,Wrench,Drill,Plyer,Srewdriver -> The user gains points when they collect these tools. If the collect the necessary amount indicated at the bottom of the screen, they win the game.
 
-# Extra features: Portal
+### Portal
 The portal is an object in the game that teleports the user to a new random location when the user hits it. There is a teleport method that performs this operation.
-# Extra features: Toolbox
+### Toolbox
 The toolbox stores the tools the user must collect to win the game. The toolbox class uses an integer array to represent the toolbox. The tools are represented by integers (0-5). The method for displaying the tools in the toolbox is implemented by the CreativeGame class.
 
 # Image sources:
