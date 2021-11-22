@@ -1,5 +1,5 @@
 # Space Scroller Game I made for my COSC 102 Java Class in Spring'20. 
-- To run the game, clone the repo, compile all .java files and run the GameLauncher class. Alternatively run the shell script if using Linux/MacOS
+- To run the game, clone the repo, compile all ```.java``` files and run the GameLauncher class. Alternatively run the shell script if using Linux/MacOS
 
 ### The user iteracts with multiple objects in the game:
 - Asteroids -> If the user hits an asteroid their health goes down.
